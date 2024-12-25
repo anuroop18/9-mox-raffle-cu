@@ -1,0 +1,59 @@
+[project]
+name = "mox_raffle"
+version = "0.1.0"
+description = "Smart contract lottery/raffle"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mamushi>=0.0.3",
+    "moccasin>=0.3.6",
+]
+
+[tool.moccasin.project]
+src = "contracts"
+out = "out"
+dot_env = ".env"
+dependencies = ["snekmate"]
+
+[tool.moccasin.networks.contracts.price_feed]
+deployer_script = "script/deploy_mocks.py"
+
+[tool.moccasin.networks.contracts.raffle]
+deployer_script = "script/deploy.py"
+
+[tool.moccasin.networks.anvil]
+url = "http://127.0.0.1:8545"
+save_to_db = true
+default_account_name = "anvil0"
+unsafe_password_file = "~/.moccasin/unsafe-passwords/anvil0"
+
+[tool.moccasin.networks.sepolia]
+url = "$SEPOLIA_RPC_URL"
+save_to_db = false
+default_account_name = "sepolia_default"
+unsafe_password_file = "~/.moccasin/unsafe-passwords/sepolia_default"
+explorer_uri = "https://eth-sepolia.blockscout.com/"
+explorer_type = "blockscout"
+
+[tool.moccasin.networks.sepolia.contracts.price_feed]
+address = "0x694AA1769357215DE4FAC081bf1f309aDC325306"
+
+[tool.moccasin.networks.sepolia_zksync]
+url = "$ZKSYNC_SEPOLIA_RPC_URL"
+chain_id = 300
+save_to_db = false
+default_account_name = "sepolia_default"
+unsafe_password_file = "~/.moccasin/unsafe-passwords/sepolia_default"
+explorer_uri = "https://explorer.sepolia.era.zksync.dev"
+explorer_type = "zksyncexplorer"
+is_zksync = true
+
+[tool.moccasin.networks.sepolia_zksync.contracts.price_feed]
+address = "0xfEefF7c3fB57d18C5C6Cdd71e45D2D0b4F9377bF"
+
+[tool.moccasin.networks.tenderly-sepolia]
+url = "$TENDERLY_SEPOLIA_RPC_URL"
+chain_id = 111555111
+save_to_db = false
+default_account_name = "tenderly_account0"
+unsafe_password_file = "~/.moccasin/unsafe-passwords/tenderly_account0"

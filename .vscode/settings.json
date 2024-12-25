@@ -1,0 +1,17 @@
+{
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "files.associations": {
+        ".coveragerc": "toml"
+    },
+    "vyper.command": "vyper -p ./lib/github -p ./lib/pypi",
+    "emeraldwalk.runonsave": {
+      "commands": [
+        {
+          "match": "\\..*$",
+          "cmd": "just format"
+        }
+      ]
+    }
+}
