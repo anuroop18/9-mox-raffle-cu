@@ -3,7 +3,7 @@ import pytest
 from eth_utils import to_wei
 from moccasin.config import get_active_network
 
-from script.deploy import deploy_raffle
+from script.deploy_raffle import deploy_raffle
 
 
 @pytest.fixture(scope="session")

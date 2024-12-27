@@ -27,6 +27,7 @@
 """
 
 # Imports
+from .interfaces import VRFCoordinatorV2_5
 from . import auth as ow
 
 initializes: ow
@@ -40,19 +41,35 @@ ERROR_SEND_MORE_TO_ENTER_RAFFLE: constant(
 ) = "Raffle: Send more to enter"
 ERROR_RAFFLE_NOT_OPEN: constant(String[100]) = "Raffle: Raffle not open"
 
+# Type declarations
+flag RaffleState:
+    OPEN
+    CALCULATING
+
+
 # State variables
 ## Constants
 MAX_ARRAY_SIZE: constant(uint256) = 1
+REQUEST_CONFIRMATIONS: constant(uint16) = 3
+NUM_WORDS: constant(uint32) = 1
 MAX_NUMBER_OF_PLAYERS: constant(uint256) = 1000
+EMPTY_BYTES: constant(Bytes[32]) = b"\x00"
+
 
 # Immutables
-INTERVAL: immutable(uint256)
+CALLBACK_GAS_LIMIT: immutable(uint32)
+VRF_COORDINATOR: public(immutable(VRFCoordinatorV2_5))
+GAS_LANE: public(immutable(bytes32))
+INTERVAL: public(immutable(uint256))
+SUBSCRIPTION_ID: public(immutable(uint64))
+
 
 # Storage variables
 entrance_fee: public(uint256)
 last_timestamp: public(uint256)
 recent_winner: public(address)
 players: public(DynArray[address, MAX_NUMBER_OF_PLAYERS])
+raffle_state: public(RaffleState)
 
 # Events
 event RequestedRaffleWinner:
@@ -69,10 +86,22 @@ event WinnerPicked:
 
 # Constructor
 @deploy
-def __init__(interval: uint256, entrance_fee: uint256):
+def __init__(
+    subscription_id: uint64,
+    gas_lane: bytes32,
+    interval: uint256,
+    entrance_fee: uint256,
+    callback_gas_limit: uint32,
+    vrf_coordinator_v2_5: address,
+):
     ow.__init__()
     INTERVAL = interval
+    SUBSCRIPTION_ID = subscription_id
+    GAS_LANE = gas_lane
+    CALLBACK_GAS_LIMIT = callback_gas_limit
+    VRF_COORDINATOR = VRFCoordinatorV2_5(vrf_coordinator_v2_5)
     self.entrance_fee = entrance_fee
+    self.raffle_state = RaffleState.OPEN
     self.last_timestamp = block.timestamp
 
 

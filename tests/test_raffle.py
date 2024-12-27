@@ -1,12 +1,13 @@
 import boa
 from eth_utils import to_wei
-
-from script.deploy import INTERVAL, entrance_fee
+from moccasin.config import get_active_network
 
 
 # Constructor & initial state tests
 def test_constructor_sets_entrance_fee(raffle):
-    assert raffle.entrance_fee() == entrance_fee
+    active_network = get_active_network()
+    params = active_network.extra_data
+    assert raffle.entrance_fee() == int(params["entrance_fee"])
 
 def test_initial_players_array_is_empty(raffle):
     assert raffle.get_players() == []
@@ -84,10 +85,12 @@ def test_request_winner_reverts_when_not_ready(raffle):
         raffle.request_winner()
 
 def test_request_winner_adds_winner_to_recent_winner_and_clears_players_array(raffle, user):
+    active_network = get_active_network()
+    params = active_network.extra_data
     raffle_entrance_fee = raffle.entrance_fee()
     with boa.env.prank(user):
         raffle.enter_raffle(value=raffle_entrance_fee)
-    boa.env.time_travel(seconds=INTERVAL+1)
+    boa.env.time_travel(seconds=params["interval"]+1)
     assert raffle.is_ready_to_request()
     raffle.request_winner()
     assert raffle.recent_winner() == user
@@ -95,29 +98,35 @@ def test_request_winner_adds_winner_to_recent_winner_and_clears_players_array(ra
 
 
 def test_request_winner_emits_event_when_winner_picked(raffle, user):
+    active_network = get_active_network()
+    params = active_network.extra_data
     raffle_entrance_fee = raffle.entrance_fee()
     with boa.env.prank(user):
         raffle.enter_raffle(value=raffle_entrance_fee)
-    boa.env.time_travel(seconds=INTERVAL+1)
+    boa.env.time_travel(seconds=params["interval"]+1)
     assert raffle.is_ready_to_request()
     raffle.request_winner()
     print(raffle.get_logs())
     assert raffle.get_logs()[0].topics[0] == user
 
 def test_balance_of_raffle_is_zero_after_winner_picked(raffle, user):
+    active_network = get_active_network()
+    params = active_network.extra_data
     raffle_entrance_fee = raffle.entrance_fee()
     with boa.env.prank(user):
         raffle.enter_raffle(value=raffle_entrance_fee)
-    boa.env.time_travel(seconds=INTERVAL+1)
+    boa.env.time_travel(seconds=params["interval"]+1)
     assert raffle.is_ready_to_request()
     raffle.request_winner()
     assert boa.env.get_balance(raffle.address) == 0
 
 def test_winner_balance_is_equal_to_raffle_balance(raffle, user):
+    active_network = get_active_network()
+    params = active_network.extra_data
     raffle_entrance_fee = raffle.entrance_fee()
     with boa.env.prank(user):
         raffle.enter_raffle(value=raffle_entrance_fee)
-    boa.env.time_travel(seconds=INTERVAL+1)
+    boa.env.time_travel(seconds=params["interval"]+1)
     assert raffle.is_ready_to_request()
     user_balance_old = boa.env.get_balance(user)
     raffle.request_winner()
